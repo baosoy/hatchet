@@ -250,28 +250,6 @@
           }
         },
         {
-          "kind": "JobRun",
-          "spec": {
-            "jobId": "${refs.hatchet-migration.id}",
-            "billing": {
-              "deploymentPlan": "nf-compute-10"
-            }
-          },
-          "condition": "success",
-          "ref": "hatchet-run-migration"
-        },
-        {
-          "kind": "JobRun",
-          "spec": {
-            "jobId": "${refs.hatchet-setup.id}",
-            "billing": {
-              "deploymentPlan": "nf-compute-10"
-            }
-          },
-          "condition": "success",
-          "ref": "hatch-setup-config-run"
-        },
-        {
           "kind": "Workflow",
           "spec": {
             "type": "parallel",
