@@ -460,7 +460,10 @@
       "name": "mmeadoww",
       "region": "europe-west",
       "color": "#DBFE87",
-      "description": ""
+      "description": "",
+      "networking": {
+        "allowedIngressProjects": []
+      }
     }
   },
   "$schema": "https://api.northflank.com/v1/schemas/template"
