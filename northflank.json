@@ -84,7 +84,7 @@
                 "ADMIN_NAME": "${args.ADMIN_NAME}",
                 "DEFAULT_TENANT_NAME": "${args.DEFAULT_TENANT_NAME}",
                 "DEFAULT_TENANT_SLUG": "${args.DEFAULT_TENANT_SLUG}",
-                "DATABASE_LOGGER_LEVEL": "log",
+                "DATABASE_LOGGER_LEVEL": "debug",
                 "DATABASE_LOGGER_FORMAT": "json"
               },
               "files": {}
