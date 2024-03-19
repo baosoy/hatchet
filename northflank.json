@@ -378,49 +378,6 @@
                   ]
                 },
                 "ref": "hatchet-frontend"
-              },
-              {
-                "kind": "DeploymentService",
-                "spec": {
-                  "deployment": {
-                    "instances": 1,
-                    "storage": {
-                      "ephemeralStorage": {
-                        "storageSize": 1024
-                      },
-                      "shmSize": 64
-                    },
-                    "docker": {
-                      "configType": "default"
-                    },
-                    "external": {
-                      "imagePath": "caddy:alpine"
-                    }
-                  },
-                  "runtimeEnvironment": {},
-                  "runtimeFiles": {},
-                  "billing": {
-                    "deploymentPlan": "nf-compute-10"
-                  },
-                  "name": "caddy",
-                  "ports": [
-                    {
-                      "internalPort": 80,
-                      "protocol": "HTTP",
-                      "public": true,
-                      "name": "p01",
-                      "domains": [
-                        "q.mmeadoww.xyz"
-                      ],
-                      "security": {
-                        "policies": [],
-                        "credentials": []
-                      },
-                      "disableNfDomain": true
-                    }
-                  ]
-                },
-                "ref": "caddy"
               }
             ]
           }
