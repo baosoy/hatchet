@@ -1,0 +1,14 @@
+{
+  "name": "h",
+  "private": true,
+  "workspaces": [
+    "workers/*"
+  ],
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "Kerim Hudson <83000ed3d0dfc90b50b242ce@bao.email>",
+  "license": "MIT",
+  "dependencies": {
+    "turbo": "^1.12.5"
+  }
+}

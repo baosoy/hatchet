@@ -1,0 +1,448 @@
+{
+  "apiVersion": "v1",
+  "spec": {
+    "kind": "Workflow",
+    "spec": {
+      "type": "sequential",
+      "steps": [
+        {
+          "kind": "Workflow",
+          "spec": {
+            "type": "parallel",
+            "steps": [
+              {
+                "kind": "Addon",
+                "spec": {
+                  "tlsEnabled": true,
+                  "billing": {
+                    "replicas": 1,
+                    "storage": 4096,
+                    "storageClass": "ssd",
+                    "deploymentPlan": "nf-compute-20"
+                  },
+                  "typeSpecificSettings": {
+                    "postgresqlConnectionPoolerReplicas": 2,
+                    "postgresqlReadConnectionPoolerReplicas": 2
+                  },
+                  "name": "hatchet-postgres",
+                  "type": "postgresql",
+                  "version": "latest",
+                  "externalAccessEnabled": false,
+                  "ipPolicies": [],
+                  "pitrEnabled": false
+                },
+                "ref": "postgres"
+              },
+              {
+                "kind": "Addon",
+                "spec": {
+                  "tlsEnabled": true,
+                  "billing": {
+                    "replicas": 1,
+                    "storage": 4096,
+                    "storageClass": "ssd",
+                    "deploymentPlan": "nf-compute-50"
+                  },
+                  "typeSpecificSettings": {},
+                  "type": "rabbitmq",
+                  "name": "hatchet-rabbitmq",
+                  "version": "latest",
+                  "externalAccessEnabled": false,
+                  "ipPolicies": [],
+                  "pitrEnabled": false
+                },
+                "ref": "rabbitmq"
+              }
+            ]
+          }
+        },
+        {
+          "kind": "SecretGroup",
+          "spec": {
+            "secretType": "environment-arguments",
+            "priority": 10,
+            "secrets": {
+              "variables": {
+                "DATABASE_POSTGRES_SSL_MODE": "require",
+                "SERVER_ENCRYPTION_JWT_PRIVATE_KEYSET": "${args.SERVER_ENCRYPTION_JWT_PRIVATE_KEYSET}",
+                "SERVER_ENCRYPTION_JWT_PUBLIC_KEYSET": "${args.SERVER_ENCRYPTION_JWT_PUBLIC_KEYSET}",
+                "SERVER_ENCRYPTION_MASTER_KEYSET": "${args.SERVER_ENCRYPTION_MASTER_KEYSET}",
+                "SERVER_AUTH_COOKIE_INSECURE": "false",
+                "SERVER_AUTH_COOKIE_SECRETS": "${args.SERVER_AUTH_COOKIE_SECRETS}",
+                "SERVER_AUTH_COOKIE_DOMAIN": "${args.SERVER_AUTH_COOKIE_DOMAIN}",
+                "DATABASE_URL": "postgres://${DATABASE_POSTGRES_USERNAME}:${DATABASE_POSTGRES_PASSWORD}@${DATABASE_POSTGRES_HOST}:${DATABASE_POSTGRES_PORT}/${DATABASE_POSTGRES_DB_NAME}",
+                "SERVER_GRPC_PORT": "7070",
+                "SERVER_GRPC_BIND_ADDRESS": "0.0.0.0",
+                "SERVER_GRPC_BROADCAST_ADDRESS": "hatchet-engine:7070",
+                "SERVER_GRPC_INSECURE": "t",
+                "SERVER_LOGGER_LEVEL": "debug",
+                "SERVER_LOGGER_FORMAT": "json",
+                "SERVER_AUTH_COOKIE_NAME": "hatchet",
+                "SERVER_AUTH_SET_EMAIL_VERIFIED": "true",
+                "ADMIN_EMAIL": "${args.ADMIN_EMAIL}",
+                "ADMIN_PASSWORD": "${args.ADMIN_PASSWORD}",
+                "ADMIN_NAME": "${args.ADMIN_NAME}",
+                "DEFAULT_TENANT_NAME": "${args.DEFAULT_TENANT_NAME}",
+                "DEFAULT_TENANT_SLUG": "${args.DEFAULT_TENANT_SLUG}",
+                "DATABASE_LOGGER_LEVEL": "log",
+                "DATABASE_LOGGER_FORMAT": "json"
+              },
+              "files": {}
+            },
+            "addonDependencies": [
+              {
+                "addonId": "${refs.postgres.id}",
+                "keys": [
+                  {
+                    "keyName": "HOST",
+                    "aliases": ["DATABASE_POSTGRES_HOST"]
+                  },
+                  {
+                    "keyName": "POSTGRES_URI",
+                    "aliases": ["DATABASE_POSTGRES_URI"]
+                  },
+                  {
+                    "keyName": "USERNAME",
+                    "aliases": ["DATABASE_POSTGRES_USERNAME"]
+                  },
+                  {
+                    "keyName": "PASSWORD",
+                    "aliases": ["DATABASE_POSTGRES_PASSWORD"]
+                  },
+                  {
+                    "keyName": "DATABASE",
+                    "aliases": ["DATABASE_POSTGRES_DB_NAME"]
+                  },
+                  {
+                    "keyName": "PORT",
+                    "aliases": ["DATABASE_POSTGRES_PORT"]
+                  }
+                ]
+              },
+              {
+                "addonId": "${refs.rabbitmq.id}",
+                "keys": [
+                  {
+                    "keyName": "AMQP_CONNECTION_STRING",
+                    "aliases": ["SERVER_TASKQUEUE_RABBITMQ_URL"]
+                  },
+                  {
+                    "keyName": "HOST",
+                    "aliases": []
+                  },
+                  {
+                    "keyName": "USERNAME",
+                    "aliases": []
+                  },
+                  {
+                    "keyName": "PASSWORD",
+                    "aliases": []
+                  },
+                  {
+                    "keyName": "VHOST",
+                    "aliases": []
+                  }
+                ]
+              }
+            ],
+            "name": "hatchet-secrets",
+            "restrictions": {
+              "restricted": false,
+              "nfObjects": [],
+              "tags": []
+            }
+          },
+          "ref": "secrets"
+        },
+        {
+          "kind": "Workflow",
+          "spec": {
+            "type": "parallel",
+            "steps": [
+              {
+                "kind": "ManualJob",
+                "spec": {
+                  "runOnSourceChange": "never",
+                  "backoffLimit": 0,
+                  "activeDeadlineSeconds": 600,
+                  "deployment": {
+                    "storage": {
+                      "ephemeralStorage": {
+                        "storageSize": 1024
+                      },
+                      "shmSize": 64
+                    },
+                    "docker": {
+                      "configType": "default"
+                    },
+                    "external": {
+                      "imagePath": "ghcr.io/hatchet-dev/hatchet/hatchet-migrate:latest"
+                    }
+                  },
+                  "runtimeEnvironment": {},
+                  "runtimeFiles": {},
+                  "billing": {
+                    "deploymentPlan": "nf-compute-10"
+                  },
+                  "name": "hatchet-migration",
+                  "disabledCI": false,
+                  "buildConfiguration": {
+                    "pathIgnoreRules": [],
+                    "isAllowList": false,
+                    "ciIgnoreFlagsEnabled": false
+                  },
+                  "buildArguments": {}
+                },
+                "ref": "hatchet-migration"
+              },
+              {
+                "kind": "ManualJob",
+                "spec": {
+                  "runOnSourceChange": "never",
+                  "backoffLimit": 0,
+                  "activeDeadlineSeconds": 600,
+                  "deployment": {
+                    "storage": {
+                      "ephemeralStorage": {
+                        "storageSize": 1024
+                      },
+                      "shmSize": 64
+                    },
+                    "docker": {
+                      "configType": "customCommand",
+                      "customCommand": "/hatchet/hatchet-admin quickstart --skip certs --skip keys"
+                    },
+                    "external": {
+                      "imagePath": "ghcr.io/hatchet-dev/hatchet/hatchet-admin:latest"
+                    }
+                  },
+                  "runtimeEnvironment": {},
+                  "runtimeFiles": {},
+                  "billing": {
+                    "deploymentPlan": "nf-compute-10"
+                  },
+                  "name": "hatchet-setup",
+                  "disabledCI": false,
+                  "buildConfiguration": {
+                    "pathIgnoreRules": [],
+                    "isAllowList": false,
+                    "ciIgnoreFlagsEnabled": false
+                  },
+                  "buildArguments": {}
+                },
+                "ref": "hatchet-setup"
+              }
+            ]
+          }
+        },
+        {
+          "kind": "JobRun",
+          "spec": {
+            "jobId": "${refs.hatchet-migration.id}",
+            "billing": {
+              "deploymentPlan": "nf-compute-10"
+            }
+          },
+          "condition": "success",
+          "ref": "hatchet-run-migration"
+        },
+        {
+          "kind": "JobRun",
+          "spec": {
+            "jobId": "${refs.hatchet-setup.id}",
+            "billing": {
+              "deploymentPlan": "nf-compute-10"
+            }
+          },
+          "condition": "success",
+          "ref": "hatch-setup-config-run"
+        },
+        {
+          "kind": "Workflow",
+          "spec": {
+            "type": "parallel",
+            "steps": [
+              {
+                "kind": "DeploymentService",
+                "spec": {
+                  "deployment": {
+                    "instances": 1,
+                    "storage": {
+                      "ephemeralStorage": {
+                        "storageSize": 1024
+                      },
+                      "shmSize": 64
+                    },
+                    "docker": {
+                      "configType": "customCommand",
+                      "customCommand": "/hatchet/hatchet-engine "
+                    },
+                    "external": {
+                      "imagePath": "ghcr.io/hatchet-dev/hatchet/hatchet-engine:latest"
+                    }
+                  },
+                  "runtimeEnvironment": {},
+                  "runtimeFiles": {},
+                  "billing": {
+                    "deploymentPlan": "nf-compute-10"
+                  },
+                  "name": "hatchet-engine",
+                  "ports": [
+                    {
+                      "internalPort": 7070,
+                      "protocol": "TCP",
+                      "public": false,
+                      "name": "p01",
+                      "domains": [],
+                      "security": {
+                        "policies": [],
+                        "credentials": []
+                      },
+                      "disableNfDomain": false
+                    }
+                  ]
+                },
+                "ref": "hatchet-engine"
+              },
+              {
+                "kind": "DeploymentService",
+                "spec": {
+                  "deployment": {
+                    "instances": 1,
+                    "storage": {
+                      "ephemeralStorage": {
+                        "storageSize": 1024
+                      },
+                      "shmSize": 64
+                    },
+                    "docker": {
+                      "configType": "customCommand",
+                      "customCommand": "/hatchet/hatchet-api"
+                    },
+                    "external": {
+                      "imagePath": "ghcr.io/hatchet-dev/hatchet/hatchet-api:latest"
+                    }
+                  },
+                  "runtimeEnvironment": {},
+                  "runtimeFiles": {},
+                  "billing": {
+                    "deploymentPlan": "nf-compute-10"
+                  },
+                  "name": "hatchet-api",
+                  "ports": [
+                    {
+                      "internalPort": 8080,
+                      "protocol": "HTTP",
+                      "public": false,
+                      "name": "p01",
+                      "domains": [],
+                      "security": {
+                        "policies": [],
+                        "credentials": []
+                      },
+                      "disableNfDomain": false
+                    }
+                  ]
+                },
+                "ref": "hatchet-api"
+              },
+              {
+                "kind": "DeploymentService",
+                "spec": {
+                  "deployment": {
+                    "instances": 1,
+                    "storage": {
+                      "ephemeralStorage": {
+                        "storageSize": 1024
+                      },
+                      "shmSize": 64
+                    },
+                    "docker": {
+                      "configType": "default"
+                    },
+                    "external": {
+                      "imagePath": "ghcr.io/hatchet-dev/hatchet/hatchet-frontend:latest"
+                    }
+                  },
+                  "runtimeEnvironment": {},
+                  "runtimeFiles": {},
+                  "billing": {
+                    "deploymentPlan": "nf-compute-10"
+                  },
+                  "name": "hatchet-frontend",
+                  "ports": [
+                    {
+                      "internalPort": 80,
+                      "protocol": "HTTP",
+                      "public": false,
+                      "name": "p01",
+                      "domains": [],
+                      "security": {
+                        "policies": [],
+                        "credentials": []
+                      },
+                      "disableNfDomain": false
+                    }
+                  ]
+                },
+                "ref": "hatchet-frontend"
+              },
+              {
+                "kind": "DeploymentService",
+                "spec": {
+                  "deployment": {
+                    "instances": 1,
+                    "storage": {
+                      "ephemeralStorage": {
+                        "storageSize": 1024
+                      },
+                      "shmSize": 64
+                    },
+                    "docker": {
+                      "configType": "default"
+                    },
+                    "external": {
+                      "imagePath": "caddy:alpine"
+                    }
+                  },
+                  "runtimeEnvironment": {},
+                  "runtimeFiles": {
+                    "/etc/caddy/Caddyfile": {
+                      "data": "ewoJYXV0b19odHRwcyBkaXNhYmxlX2NlcnRzCn0KCgpodHRwOi8vPERPTUFJTj4gewoKCWhhbmRsZSAvYXBpLyogewoJCXJldmVyc2VfcHJveHkgaGF0Y2hldC1hcGk6ODA4MCB7CgkJCWhlYWRlcl91cCBIb3N0IHt1cHN0cmVhbV9ob3N0cG9ydH0KCQl9Cgl9CgoKCWhhbmRsZSAvKiB7CgkJcmV2ZXJzZV9wcm94eSBoYXRjaGV0LWZyb250ZW5kOjgwIHsKCQkJaGVhZGVyX3VwIEhvc3Qge3Vwc3RyZWFtX2hvc3Rwb3J0fQoJCX0KCX0KfQ==",
+                      "encoding": "utf-8"
+                    }
+                  },
+                  "billing": {
+                    "deploymentPlan": "nf-compute-10"
+                  },
+                  "name": "caddy",
+                  "ports": [
+                    {
+                      "internalPort": 80,
+                      "protocol": "HTTP",
+                      "public": true,
+                      "name": "p01",
+                      "domains": [],
+                      "security": {
+                        "policies": [],
+                        "credentials": []
+                      },
+                      "disableNfDomain": true
+                    }
+                  ]
+                },
+                "ref": "caddy"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "name": "hatchet",
+  "description": "Build and deploy Hatchet",
+  "project": {
+    "id": "hatchet"
+  },
+  "$schema": "https://api.northflank.com/v1/schemas/template"
+}
