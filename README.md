@@ -16,6 +16,8 @@ Because Northflank does not expose TCP ports for containers, you are only able t
 
 ## Arguments
 
+Currently I've not found a good way to automate the generation of these as Hatchet runs these as part of its scripts. But if you run the docker compose file locally, you can steal the keys generated from there.
+
 ```json
 "SERVER_ENCRYPTION_JWT_PRIVATE_KEYSET" : "",
 "SERVER_ENCRYPTION_JWT_PUBLIC_KEYSET": "",
