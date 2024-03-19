@@ -28,3 +28,18 @@ Because Northflank does not expose TCP ports for containers, you are only able t
 "DEFAULT_TENANT_NAME" : "",
 "DEFAULT_TENANT_SLUG": ""
 ```
+
+## Deploying the example worker
+
+This is a monorepo structure which includes an example of how to deploy a worker. If you navigate to `workers/example` you'll see the same worker as in the [Getting Started](https://docs.hatchet.run/self-hosting/docker-compose#run-your-first-worker) page. Before deploying this, make sure you log into your Hatchet client and generate an API token. To deploy this you can:
+
+1. Create a new service in Northflank
+2. Point it to the hatchet repository
+3. Use a Docker file
+4. Keep the build context as `/` but update the Dockerfile location to `/workers/example/Dockerfile` and hit verify
+5. Add the following environment variables
+
+```
+HATCHET_CLIENT_TOKEN="<token>"
+HATCHET_CLIENT_TLS_STRATEGY=none
+```
