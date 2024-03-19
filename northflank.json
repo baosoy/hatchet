@@ -414,7 +414,9 @@
                       "protocol": "HTTP",
                       "public": true,
                       "name": "p01",
-                      "domains": [],
+                      "domains": [
+                        "q.mmeadoww.xyz"
+                      ],
                       "security": {
                         "policies": [],
                         "credentials": []
