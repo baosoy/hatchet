@@ -95,27 +95,39 @@
                 "keys": [
                   {
                     "keyName": "HOST",
-                    "aliases": ["DATABASE_POSTGRES_HOST"]
+                    "aliases": [
+                      "DATABASE_POSTGRES_HOST"
+                    ]
                   },
                   {
                     "keyName": "POSTGRES_URI",
-                    "aliases": ["DATABASE_POSTGRES_URI"]
+                    "aliases": [
+                      "DATABASE_POSTGRES_URI"
+                    ]
                   },
                   {
                     "keyName": "USERNAME",
-                    "aliases": ["DATABASE_POSTGRES_USERNAME"]
+                    "aliases": [
+                      "DATABASE_POSTGRES_USERNAME"
+                    ]
                   },
                   {
                     "keyName": "PASSWORD",
-                    "aliases": ["DATABASE_POSTGRES_PASSWORD"]
+                    "aliases": [
+                      "DATABASE_POSTGRES_PASSWORD"
+                    ]
                   },
                   {
                     "keyName": "DATABASE",
-                    "aliases": ["DATABASE_POSTGRES_DB_NAME"]
+                    "aliases": [
+                      "DATABASE_POSTGRES_DB_NAME"
+                    ]
                   },
                   {
                     "keyName": "PORT",
-                    "aliases": ["DATABASE_POSTGRES_PORT"]
+                    "aliases": [
+                      "DATABASE_POSTGRES_PORT"
+                    ]
                   }
                 ]
               },
@@ -124,7 +136,9 @@
                 "keys": [
                   {
                     "keyName": "AMQP_CONNECTION_STRING",
-                    "aliases": ["SERVER_TASKQUEUE_RABBITMQ_URL"]
+                    "aliases": [
+                      "SERVER_TASKQUEUE_RABBITMQ_URL"
+                    ]
                   },
                   {
                     "keyName": "HOST",
@@ -442,7 +456,12 @@
   "name": "hatchet",
   "description": "Build and deploy Hatchet",
   "project": {
-    "id": "hatchet"
+    "spec": {
+      "name": "mmeadoww",
+      "region": "europe-west",
+      "color": "#DBFE87",
+      "description": ""
+    }
   },
   "$schema": "https://api.northflank.com/v1/schemas/template"
 }
