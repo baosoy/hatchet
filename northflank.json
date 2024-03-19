@@ -398,12 +398,7 @@
                     }
                   },
                   "runtimeEnvironment": {},
-                  "runtimeFiles": {
-                    "/etc/caddy/Caddyfile": {
-                      "data": "ewoJYXV0b19odHRwcyBkaXNhYmxlX2NlcnRzCn0KCgpodHRwOi8vPERPTUFJTj4gewoKCWhhbmRsZSAvYXBpLyogewoJCXJldmVyc2VfcHJveHkgaGF0Y2hldC1hcGk6ODA4MCB7CgkJCWhlYWRlcl91cCBIb3N0IHt1cHN0cmVhbV9ob3N0cG9ydH0KCQl9Cgl9CgoKCWhhbmRsZSAvKiB7CgkJcmV2ZXJzZV9wcm94eSBoYXRjaGV0LWZyb250ZW5kOjgwIHsKCQkJaGVhZGVyX3VwIEhvc3Qge3Vwc3RyZWFtX2hvc3Rwb3J0fQoJCX0KCX0KfQ==",
-                      "encoding": "utf-8"
-                    }
-                  },
+                  "runtimeFiles": {},
                   "billing": {
                     "deploymentPlan": "nf-compute-10"
                   },
